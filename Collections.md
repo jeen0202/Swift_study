@@ -68,3 +68,55 @@ for (index, value) in Array.enumerated(){
     //value는 Array의 요소가 순서대로 호출됩니다.
 }
 ```
+## 집합(Set)
+- 순서와 상관없이 같은 타입의 다른 값을 저장합니다.
+- 순서가 하지 않거나, 중복이 허용되지 않는 경우 Set을 사용하는것이 유용합니다.
+### Set 자료형을 위한 Hash 값
+집합에 저장되는 자료형은 반드시 Hashable해야하며, Swift의 모든 기본자료형은 Hashable합니다.
+> ### HASH
+> - Hash Value : 원본 데이터를 Hash 함수를 사용하여 Int로 변환한 값
+> - 2개의 데이터가 동일하면 각 데이터의 Hash Value도 동일한 값을 가진다.
+> **Hashable** : Hash Value를 구할 수 있는 데이터를 지칭
+```swift
+//Hash Protocol
+public protocol Hashable : Equatable { // Hashable Protocol의 정의
+    var hashValue: Int { get }
+    func hash(into hasher: inout Hasher)
+}
+```
+**Hashable Value의 사용 이유**
+Hash Talbe을 사용하여 O(1)의 시간복잡도로 검색이 가능하다.
+
+### Set Type Syntax
+Set Type의 `Element`가 `Set<Element>`로 작성되며 단축된 등가형식은 없습니다.
+__빈 Set생성과 초기화__
+```swift
+var letters = Set<Character>() //Char 빈 집합 생성
+var lettres = [] // 이미 선언된 Set을 초기화
+```
+### Array Literal로 Set 생성
+`String`값을 저장하는 `enres`집합을 생성하여 초기화
+```swift
+var genres1 : Set<String> = ["Rock","Classical","Hip Hop"]
+var genres2 : Set = ["Rock","Classical","Hip Hop"]
+```
+### Set 접근과 수정
+`count` `isEmpty`프로퍼티의 사용이 가능합니다.
+```swift
+if genres1.isEmpty {
+    print("genres1 has \(genres1.count) Items")
+}
+```
+`insert(_:)` `remove(_:)`메서드를 호출하여 새로운 아이템을 추가하거나 기존 아이템을 제거할 수 있습니다.
+``` swift
+genres2.insert("Jazz")
+var rock = genres2.remove("Rock") // 제거된 아이템 반환
+var pop = genres2.remove("pop") //미존재시 null반환
+genres1.removeAll() //모든 아이템 제거
+```
+`contain(_:)`메서드를 사용하여 특정 아이템의 포함여부를 확인할 수있습니다.
+```swift
+if genres2.contains("Funk"){//bool자료형 반환
+    print("Funk is Here")
+}
+```
