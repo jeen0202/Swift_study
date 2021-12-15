@@ -120,3 +120,29 @@ if genres2.contains("Funk"){//bool자료형 반환
     print("Funk is Here")
 }
 ```
+### Set의 특수성
+Swift의 Set 자료형은 정의된 순서가 없습니다. 
+따라서`for-in`과 같이 특정 순서를 통해 집합의 아이템을 반복호출하려면 `sorted()`메서드를 통해 아이템을 정렬하여 사용해야 합니다.
+```swift
+for genre in genres2.sorted(){
+    print(genre)
+}
+```
+## 집합 연산 수행
+두 집합은 기본적인 집합연산을 수행 할 수 있습니다.
+### 기본 집합 연산
+![img](https://github.com/bbiguduk/Swift_language_guide_kr/blob/master/.gitbook/assets/04_setvenndiagram_2x.png)
+- `intersection(_:)`두 집합의 교집합을 생성합니다.
+- `symmetricDifferenct(_:)`두집합의 합집합-교집합을 생성합니다.
+- `union(_:)`두 집합의 합집합을 생성합니다.
+- `subtracting(_:)` 두 집합의 차집합을 생성합니다.
+### 집합 멤버십과 동등성
+다른 집합의 모든 요소를 포함하는 집합은 `(초집합)superset`  
+모든 요소가 다른 집합에 포함되는 집합은 `(부분집합)subset`
+서로 공통요소가 없는 집합들은 `분리집합(disjoint)`이라고 지칭합니다.
+이러한 관계를 파악하기 위한 메서드가 존재합니다.
+1. `==` : 두 집합이 같은 값을 모두 포함하고 있는지 판단
+2. `isSubset(of:)` : 특정 집합에 모든 값이 포함되어 있는지 판단
+3. `isSuperset(of:)` : 특정 집합의 모든 값을 포함하는지 판단
+4. `isStrictSubset(of:)` `isStrictSuperset(of:)` : 서로 같은 경우를 배제
+5. `isDisjoint(with:)` : 두 집합의 공통 값이 없는지 판단
