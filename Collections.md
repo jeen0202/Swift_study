@@ -146,3 +146,75 @@ for genre in genres2.sorted(){
 3. `isSuperset(of:)` : 특정 집합의 모든 값을 포함하는지 판단
 4. `isStrictSubset(of:)` `isStrictSuperset(of:)` : 서로 같은 경우를 배제
 5. `isDisjoint(with:)` : 두 집합의 공통 값이 없는지 판단
+# 사전형(Dictionaries)
+- 순서와 상관없이 Collection에 Key-Value형식의 데이터를 저장합니다.  
+- 각 Value는 Unique한 특성을 가지는 Key를 식별자로 가지게됩니다.  
+- 식별자를 기준으로 검색하여하는 데이터가 있을경우 Dictionary를 사용합니다.
+> Swift의 `Dictionary`자료형은 Foundation의 `NSDictionary`와 연결됩니다.
+## Dictionary의 shorthand Syntax
+Swift의 사전 자료형은 `Dictionary<Key, Value>`로 기재할 수 있습니다.
+> Dictionary자료형의 `Key`타입은 Hashable해야 합니다.
+## 빈 사전 데이터 선언
+```swift
+var dictionary = [keyType:valueType]()
+dictionary = [:] // 이미 초기화된 사전데이터를 빈 사전데이터로 초기화
+```
+## Literal로 Dictionary 생성
+`Key : Value`의 형태로 이루어진 Literal로 Dictionary를 생성할 수 있습니다.
+```swift
+var airports : [String:String] =["YYZ":"Toronto Pearson","DUB":"Dublin"]
+var airports = ["YYZ":"Toronto Pearson","DUB":"Dublin"]//축약가능
+```
+## Dictionary 접근과 수정
+메서드/프로퍼티/서브스크립트를 사용하여 Dictionary에 접근과 수정이 가능합니다.  
+읽기전용`count`프로퍼티와 `isEmpty`프로퍼티의 사용이 가능합니다.
+```swift
+if !airports.isEmpty{
+    print(airports.count)
+}
+```
+Key-Value의 자료형에 유의하며 서브 스크립트 구문을 사용해 새로운 아이템을 추가/수정할 수 있습니다.
+```swift
+airports["LHR"] = "London"
+airports["LHR"] = "London Heathrow"
+```
+`updateValue(_:forKey:)`메서드를 사용하여 특정 Key에대한 Value를 추가/수정 할 수 있습니다.  
+`UpdateValue(_:forkey:)`메서드는 Value의 옵셔널 값을 반환합니다. 지정한 Key에 속한 Value가 존재하지 않으면 nil을 포함합니다.
+```swift
+if let oldValue = airports.updateValue("Dublin Airport",forKey:"DUB"){
+    print("Old value of DUB : \(oldValue)")
+}
+```
+서브스크립트 구문을 사용하여 Value를 호출할 수 있습니다.
+```swift
+airports["APL"] = "Apple International"
+airports["APL"] = nil // nil값을 할당할 경우 Dictionary에서 제거됩니다.
+```
+`removeValue(forKey:)`메서드를 사용하여 아이템을 제거할 수 있습니다. 삭제된 아이템을 반환하고, 아이템이 존재하지 않는 경우는 nil을 반환합니다.
+```swift
+if let removedValue = airports.removeValue(forkey:"DUB"){
+    print("removedValue : \(removedValue)")
+}
+```
+### Dictionary 반복
+`for-in`루프를 활용하여 Dictionary의 아이템을 반복 호출할 수 있습니다. 이떄 아이템은 `(Key,Value)`튜플로 반환됩니다.
+```swift
+for (airportCode,aiportName) in airports{
+    print(airportCode,airportName)
+}
+```
+Dictionary의 `keys` `values`프로퍼티를 사용하여 반복가능한 Colletion을 호출 할 수 있습니다.
+```swift
+for airportCode in airports.keys{
+    print(airportCode)
+}
+for airportName in airports.values{
+    print(airportName)
+}
+```
+Key 또는 Value Colletion을 `Array`인스턴스로 할당해야할 경우 새로운 배열로 초기화 할 수 있습니다.
+```swift
+let airportCodes = [String](airports.keys)
+let airportNames = [String](airports.values)
+```
+> Dictionary자료형은 정의된 순서가 없기때문에 특정 순서로 Dictionary의 아이템을 반복하려면 `sorted()`메서드를 사용해야합니다.
