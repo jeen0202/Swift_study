@@ -62,3 +62,56 @@ for beverage in Beverage.allCases{
     print(beverage)
 }
 ```
+## Associated Values(연관 값)
+열거형 케이스에서 Case Value화 함께 저장될 수 있는 다른 자료형 값
+```swift
+enum enumeration{
+    case case1(Int,Int) // case와 함께 정의
+    case case2(String)
+}
+var enum1 = enumeration.case1(0,0) //연관값과 함께 초기화
+var enum2 = enumeration.case2("Associated")
+var enum1 = enumeration.case2("Associated") // 다른 케이스로 할당 가능
+```
+switch 구문을 활용한 열거형 연관 값 호출
+```swift
+switch enum1 {
+    case .case1(let num1,let num2):
+        print("case1 :\(num1), \(num2)")
+    case let .case2(str1): //case 자체를 변수처리하여 모든 연관값 선언
+        print("case2 :\(str1)")
+}
+```
+## Raw Value(원시값)
+열거형 데이터의 최초 선언시 모든 케이스에 하나의 자료형으로 초기화 되는 값  
+`rawValue`프로퍼티를 통해 호출 할 수 있습니다.  
+예시
+```swift
+enum ASCIIControlCharacter : Character { //모든 Case의 원시값 = Char
+    case tab = "\t"
+    case lineFeed = "\n"
+    case carriageReturn = "\r"
+}
+```
+### 임시적으로 할당된 Raw Value
+열거형 데이터 선언시 Raw Value를 반드시 선언할 필요는 없습니다. 명시적으로 선언하지 않을 경우 swift에서 자동으로 할당해 줍니다.  
++ Int: 0부터시작하여 1씩 증가하는 값 할당
++ String : Case명 할당
+### Raw Value으로 초기화
+열거형 데이터를 Raw Value로 정의하면 RawValue로 초기화를 진행합니다.  
+원시값 초기화는 항상 옵셔널 열거형 케이스를 반환합니다.
+```swift
+let possiblePlanet = Planet(rawValue : 7)
+```
+> 원시값 케이스 초기화는 실패 가능성이 존재합니다.
+## 재귀 열거형(Recursive Enumerations)
+하나 이상의 연관 값이 열거형의 다른 인스턴스를 포함하는 열거형.  
+케이스가 재귀적임을 나타내기위해 `indirect`키워드를 케이스 앞에 기재합니다.  
+_예시_
+```swift
+enum ArithmeticExpression{
+    case Number(Int)
+    indirect case addition(ArithmeticExpression,ArithmeticExpression)
+    indirect case multiplication(ArithmeticExpression,ArithmeticExpression)
+}
+```
