@@ -39,3 +39,27 @@ enum SchoolDetail {
 }
 let yourMiddleSchoolName = SchoolDetail.middle(name : "잔잔바리중학교")
 print("yourMiddleShcoolName : ",yourMiddleSchoolName.getName())
+// Recursive Enumbertions
+indirect enum ArithmeticsExpression{
+    case number(Int)
+    case addition(ArithmeticsExpression,ArithmeticsExpression)
+    case multiplication(ArithmeticsExpression,ArithmeticsExpression)
+}
+let five = ArithmeticsExpression.number(5)
+let four = ArithmeticsExpression.number(4)
+let sum = ArithmeticsExpression.addition(five, four)
+let product = ArithmeticsExpression.multiplication(sum, ArithmeticsExpression.number(2))
+// 연산 수행을 위한 함수
+func evaluate(_ expression: ArithmeticsExpression) -> Int{
+    switch expression{
+    case let .number(value):
+        return value
+    case let .addition(left, right):
+        return evaluate(left) + evaluate(right)
+    case let .multiplication(left, right):
+        return evaluate(left) * evaluate(right)
+    }
+}
+
+print(evaluate(sum))
+print(evaluate(product))

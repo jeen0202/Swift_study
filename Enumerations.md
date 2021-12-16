@@ -115,3 +115,10 @@ enum ArithmeticExpression{
     indirect case multiplication(ArithmeticExpression,ArithmeticExpression)
 }
 ```
+_열거형에 `indirect` 키워드를 사용해서 이하 모든 연관값에 간접을 활성화 시킬 수 있습니다._
+```swift
+indirect enum ArithmeticExpression {
+    case Number(Int)
+    case addition(ArithmeticExpression,ArithmeticExpression)
+}
+```
