@@ -52,5 +52,174 @@ setter가 없고 getter만 있는 Computed Property를 ```read-only computed pro
 **Property Wrapper**는 프로퍼티가 저장되는 방법을 관리하는 코드와 프로퍼티를 정의하는 코드 사이에 분리 계층을 추가합니다. 프로퍼티 래퍼를 사용하여 관리 코드를 한번에 작성하여 여러 프로퍼티에 적용하는 방식을 사용 할 수 있습니다.
 
 Property Wrapper 정의를 위해 `wrappedValue` 프로퍼티를 정의한 class/struct/enum 을 생성합니다.
+```swift
+@propertyWrapper
+struct TwelveOrLess {
+    private var number = 0
+    var wrappedValue : Int {
+        get {return number}
+        set {number = min(newValue,12)}
+    }
+}
 
+struct SmallRect{
+    @TwelveOrLess var height : Int
+    @TwelveOrLess var width: Int
+}
+```
 Property Wrapper를 적용할 때 컴파일러는 이를 위한 저장소를 제공하는 코드와 Wrapper를 통해 프로퍼티에 접근하는 코드를 합성합니다.
+
+특수 속성구문을 사용하지 않고 명시적으로 구조체에 프로퍼티를 패밍하는 코드를 작성할 수도 있습니다.
+
+### Wrapped Properties를 위한 초기값 설정
+`init()` 메서드로 초기값을 추가해 래핑된 프로퍼티에 대한 초기값을 설정할 수 있습니다.
+
+Property Wrapper 인자를 포함하면 할당을 사용하여 초기값을 지정할 수 있습니다.
+```swift
+// 3개의 초기화를 포함한 Property Wrapper
+@propertyWrapper
+struct SmallNumber {
+    private var maximum : Int
+    private var number : Int
+    
+    var wrappedValue : Int {
+        get { return number}
+        set {number = min(newValue,maximum)}
+    }
+    init () {
+        maximum = 12
+        number = 0
+    }
+    init (wrappedValue: Int){
+        maximum = 12
+        number = min(wrappedValue,maximum)
+    }
+    init(WrappedValue : Int, maximum : Int){
+        self.maximum = maximum
+        number = min(WrappedValue,maximum)
+    }
+}
+```
+### Property Wrapper에서 Value Projecting
+**Property Wrapper**는 `WrappedValue`이외에 `Projected Value`(투영된 값)정의에 의해 추가적인 기능을 노출 할 수있습니다.
+`Projected Value`는 서두에 `$`표시를 눟여 사용됩니다.
+```swift
+// Value Project
+@propertyWrapper
+struct TinyNumber {
+    private var number : Int
+    private(set) var projectedValue : Bool    
+    var wrappedValue : Int {
+        get { return number }
+        set {if newValue > 12 {
+                number = 12
+                projectedValue = true
+            }else{
+                number = newValue
+                projectedValue = false
+            }       }     }
+    init(){
+        self.number = 0
+        self.projectedValue = false
+    }}
+
+struct SomeStruct{@TinyNumber var someNumber : Int }
+var someStruct = SomeStruct()
+someStruct.someNumber = 4
+print(someStruct.$someNumber) //false 출력
+someStruct.someNumber = 55
+print(someStruct.$someNumber) //true 출력
+```
+
+`projectedValue`를 사용하여 어떤 타입의 값도 반환할 수 있습니다. `projectedValue`로 인스턴스를 노출하기 위해서`self`키워드를 반환 할 수 있습니다.
+```swift
+enum Size {
+    case small, large
+}
+
+struct SizedRectangle {
+    @SmallNumber var height: Int
+    @SmallNumber var width: Int
+
+    mutating func resize(to size: Size) -> Bool {
+        switch size {
+        case .small:
+            height = 10
+            width = 20
+        case .large:
+            height = 100
+            width = 100
+        }
+        return $height || $width // self 생략가능
+    }
+}
+```
+
+## 전역과 지역변수
+**전역(global)** 과 **지역(local)** 변수에서도 Observer와 Wrapper를 사용할 수 있습니다.
+> 전역 상수와 변수는 `Lazy Stored Properties`와 유사한 형식으로 항상 느리게 계산됩니다. 이때 `Lazy`키워드는 불필요합니다.
+
+## Type Properties(타입 프로퍼티)
+타입의 새로운 인스턴스를 만들떄마다 고유한 프로퍼티 값을 설정합니다. 생성하는 해당 타입의 인스턴스 수에 관계없이 하나의 복사본만을 가지는 프로퍼티를 **Type Property** 라고 합니다.
+
+타입 프로퍼티는 모든 인스턴스에서 사용할 수 있는 프로퍼티 상수, 모든 인스턴스에 전역인 값을 저장하는 프로퍼티 변수를 정의하는데 유용합니다.
+> Stored Type Property는 항상 기본값이 주어져야 합니다.
+
+### Type Property Syntax
+Swift에서 Type Property는 타입의 외부 중괄호 내에 정의 부분으로 작성되고 각 타입 프로퍼티에 지원되는 형식으로 명시적인 범위가 지정됩니다.
+
+`static`키워드를 사용하여 타입 프로퍼티를 정의합니다. class의 `computed type proprety`의 경우는 `class`키워드를 사용하여 하위 클래스에서 상위 클래스의 구현을 재현할 수 있습니다.
+```swift
+//각 타입별 타입 프로퍼티 생성
+struct SomeStructure {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 1
+    }
+}
+enum SomeEnumeration {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 6
+    }
+}
+class SomeClass {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 27
+    }
+    class var overrideableComputedTypeProperty: Int {
+        return 107
+    }
+}
+```
+
+### Type Property 조회와 설정
+Type propety는 인스턴스 프로퍼티처럼 점 구문으로 호출되지만 인스턴스가 아닌 **Type**에 대해 조회되고 설정합니다.
+```swift
+//예제
+struct AudioChannel {
+    static let thresholdLevel = 10
+    static var maxInputLevelForAllChannels = 0
+    var currentLevel : Int = 0 {
+        didSet{
+            if currentLevel > AudioChannel.thresholdLevel{
+                currentLevel = AudioChannel.thresholdLevel
+            }
+            if currentLevel > AudioChannel.maxInputLevelForAllChannels{
+                AudioChannel.maxInputLevelForAllChannels = currentLevel
+            }
+        }
+    }
+}
+
+var leftChannel = AudioChannel()
+var rightChannel = AudioChannel()
+
+leftChannel.currentLevel = 7
+print(leftChannel.currentLevel)
+print(AudioChannel.maxInputLevelForAllChannels)
+rightChannel.currentLevel = 11
+print(rightChannel.currentLevel)
+print(AudioChannel.maxInputLevelForAllChannels)
+```
